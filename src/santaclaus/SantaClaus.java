@@ -10,12 +10,16 @@ package santaclaus;
  * @author developer
  */
 public class SantaClaus {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    
+    public void ayudarElfos(){
+        
     }
     
+    public static synchronized void viajarConRenos(){
+        System.out.println("Viajando con renos");
+    }
+    
+    public static synchronized void ayudarElfo(){
+        System.out.println("Ayudando a un elfo");
+    }
 }
