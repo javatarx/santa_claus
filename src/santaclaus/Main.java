@@ -22,9 +22,13 @@ public class Main extends javax.swing.JFrame {
     public static DefaultListModel modelListaRenos;
     public static DefaultListModel modelListaElfos;
 
+    /**
+     * Inicializamos los semaforos de elfos y renos en 0, para que al iniciar
+     * esten a la espera. El que cambia este valor es Santa
+     */
     public static Semaphore semElfos = new Semaphore(0, true);
     public static Semaphore semRenos = new Semaphore(0, true);
-    public static Semaphore semSanta = new Semaphore(1);
+    public static Semaphore semSanta = new Semaphore(1, true);
     public static Semaphore mutex = new Semaphore(1);
 
     /**
@@ -44,13 +48,17 @@ public class Main extends javax.swing.JFrame {
         listaElfos.setModel(modelListaElfos);
         listaRenos.setModel(modelListaRenos);
 
-        updateLabelsSize();
+        updateLabelElfos();
+        updateLabelRenos();
 
     }
 
-    private void updateLabelsSize() {
-        txtRenos.setText(modelListaRenos.size() + " Renos");
-        txtElfos.setText(modelListaElfos.size() + " Elfos");
+    public static void updateLabelElfos() {
+        txtElfosStatic.setText(modelListaElfos.size() + " Elfos");
+    }
+
+    public static void updateLabelRenos() {
+        txtRenosStatic.setText(modelListaRenos.size() + " Renos");
     }
 
     private void addReno() {
@@ -59,7 +67,7 @@ public class Main extends javax.swing.JFrame {
             Reno r = new Reno(modelListaRenos.size());
             r.start();
             modelListaRenos.addElement(r);
-            updateLabelsSize();
+            updateLabelRenos();
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -72,7 +80,7 @@ public class Main extends javax.swing.JFrame {
             Elfo e = new Elfo(modelListaElfos.size());
             e.start();
             modelListaElfos.addElement(e);
-            updateLabelsSize();
+            updateLabelElfos();
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -98,6 +106,8 @@ public class Main extends javax.swing.JFrame {
         btnReiniciar = new javax.swing.JButton();
         txtRenos = new javax.swing.JLabel();
         txtElfos = new javax.swing.JLabel();
+        txtElfosStatic = new javax.swing.JLabel();
+        txtRenosStatic = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -126,6 +136,10 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        txtElfosStatic.setText("jLabel1");
+
+        txtRenosStatic.setText("jLabel1");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -135,18 +149,22 @@ public class Main extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 230, Short.MAX_VALUE)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnElfo, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(127, 127, 127)
                         .addComponent(btnReiniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 145, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
                         .addComponent(btnReno, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(txtElfos)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtRenos)))
+                        .addComponent(txtRenos))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtElfosStatic)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtRenosStatic)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -157,13 +175,17 @@ public class Main extends javax.swing.JFrame {
                         .addGap(52, 52, 52)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(60, 60, 60)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtRenos)
                     .addComponent(txtElfos))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtElfosStatic)
+                    .addComponent(txtRenosStatic))
+                .addGap(11, 11, 11)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnElfo)
                     .addComponent(btnReno)
@@ -230,6 +252,8 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JList<String> listaElfos;
     private javax.swing.JList<String> listaRenos;
     private javax.swing.JLabel txtElfos;
+    private static javax.swing.JLabel txtElfosStatic;
     private javax.swing.JLabel txtRenos;
+    private static javax.swing.JLabel txtRenosStatic;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,6 +5,9 @@
  */
 package santaclaus;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author developer
@@ -22,8 +25,7 @@ public class Elfo extends Thread {
         System.out.println(toString() + " solicita ayuda.");
         try {
             while (true) {
-                // Si es el 9no reno, este va a despertar a Santa
-                if (Main.modelListaElfos.size() / 3 >= 1) {
+                if (Main.modelListaElfos.size() / Main.CANT_ELFOS_ATENCION >= 1) {
                     Main.semSanta.acquire();
                     SantaClaus.despertar();
                 }
@@ -36,8 +38,15 @@ public class Elfo extends Thread {
     }
 
     public void solicitarAyuda() {
-        System.out.println("Santa ayuda al " + toString());
-        Main.modelListaElfos.removeElement(this);
+        try {
+            System.out.println("Santa ayuda al " + toString());
+            Thread.sleep(1500);
+            System.out.println("Santa termino de ayudar al " + toString());
+            Main.modelListaElfos.removeElement(this);
+            Main.updateLabelElfos();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Elfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override

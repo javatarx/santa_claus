@@ -37,8 +37,8 @@ public class Reno extends Thread {
 
     private void repartirRegalos() throws InterruptedException {
         System.out.println("El " + toString() + " salio a repartir regalos");
-        Thread.sleep(100);
         Main.modelListaRenos.removeElement(this);
+        Main.updateLabelRenos();
     }
 
     @Override
