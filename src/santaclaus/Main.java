@@ -6,6 +6,8 @@
 package santaclaus;
 
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 
 /**
@@ -13,16 +15,17 @@ import javax.swing.DefaultListModel;
  * @author developer
  */
 public class Main extends javax.swing.JFrame {
-    
-    public static int TOTAL_RENOS = 9;
+
+    public static int ULTIMO_RENO = 9;
     public static int CANT_ELFOS_ATENCION = 3;
 
     public static DefaultListModel modelListaRenos;
     public static DefaultListModel modelListaElfos;
 
-    public static Semaphore semElfos = new Semaphore(3, true);
-    public static Semaphore semRenos = new Semaphore(9, true);
-    public static Semaphore semSanta = new Semaphore(0);
+    public static Semaphore semElfos = new Semaphore(0, true);
+    public static Semaphore semRenos = new Semaphore(0, true);
+    public static Semaphore semSanta = new Semaphore(1);
+    public static Semaphore mutex = new Semaphore(1);
 
     /**
      * Creates new form Main
@@ -34,6 +37,7 @@ public class Main extends javax.swing.JFrame {
     }
 
     private void setInitialConfig() {
+
         modelListaElfos = new DefaultListModel();
         modelListaRenos = new DefaultListModel();
 
@@ -50,10 +54,16 @@ public class Main extends javax.swing.JFrame {
     }
 
     private void addReno() {
-        Reno r = new Reno();
-        r.start();
-        modelListaRenos.addElement(r);
-        updateLabelsSize();
+        try {
+            mutex.acquire();
+            Reno r = new Reno(modelListaRenos.size());
+            r.start();
+            modelListaRenos.addElement(r);
+            updateLabelsSize();
+            mutex.release();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void addElfo() {

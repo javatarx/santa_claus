@@ -11,19 +11,36 @@ package santaclaus;
  */
 public class Reno extends Thread {
 
+    private int num;
+
+    public Reno(int num) {
+        this.num = num;
+    }
+
     @Override
     public void run() {
-        System.out.println("Reno creado");
+        System.out.println("Llego el " + (toString()));
         try {
             while (true) {
-                if (Main.modelListaRenos.size() == Main.TOTAL_RENOS) {
-                    Main.semRenos.acquire();
-                    SantaClaus.viajarConRenos();
+                if (Main.modelListaRenos.size() == Main.ULTIMO_RENO) {
+                    Main.semSanta.acquire();
+                    SantaClaus.despertar();
                 }
+                Main.semRenos.acquire();
+                repartirRegalos();
                 Thread.sleep(100);
             }
         } catch (Exception e) {
         }
+    }
+
+    private void repartirRegalos() {
+        System.out.println("El " + toString() + " salio a repartir regalos");
+    }
+
+    @Override
+    public String toString() {
+        return "Reno " + (num + 1);
     }
 
 }
