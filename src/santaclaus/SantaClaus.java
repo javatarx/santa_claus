@@ -34,6 +34,7 @@ public class SantaClaus {
     }
 
     public static synchronized void ayudarElfos() {
-        System.out.println("Ayudando a un elfo");
+        System.out.println("Ayudando a elfos");
+        Main.semElfos.release(3);
     }
 }

@@ -9,11 +9,40 @@ package santaclaus;
  *
  * @author developer
  */
-public class Elfo extends  Thread{
+public class Elfo extends Thread {
+
+    private int num;
+
+    public Elfo(int num) {
+        this.num = num;
+    }
 
     @Override
     public void run() {
-        System.out.println("Elfo creado");
+        System.out.println(toString() + " solicita ayuda.");
+        try {
+            while (true) {
+                // Si es el 9no reno, este va a despertar a Santa
+                if (Main.modelListaElfos.size() / 3 >= 1) {
+                    Main.semSanta.acquire();
+                    SantaClaus.despertar();
+                }
+
+                Main.semElfos.acquire();
+                solicitarAyuda();
+            }
+        } catch (Exception e) {
+        }
     }
-    
+
+    public void solicitarAyuda() {
+        System.out.println("Santa ayuda al " + toString());
+        Main.modelListaElfos.removeElement(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Elfo " + (num + 1);
+    }
+
 }

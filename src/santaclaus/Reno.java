@@ -22,20 +22,23 @@ public class Reno extends Thread {
         System.out.println("Llego el " + (toString()));
         try {
             while (true) {
+                // Si es el 9no reno, este va a despertar a Santa
                 if (Main.modelListaRenos.size() == Main.ULTIMO_RENO) {
                     Main.semSanta.acquire();
                     SantaClaus.despertar();
                 }
+                
                 Main.semRenos.acquire();
                 repartirRegalos();
-                Thread.sleep(100);
             }
         } catch (Exception e) {
         }
     }
 
-    private void repartirRegalos() {
+    private void repartirRegalos() throws InterruptedException {
         System.out.println("El " + toString() + " salio a repartir regalos");
+        Thread.sleep(100);
+        Main.modelListaRenos.removeElement(this);
     }
 
     @Override

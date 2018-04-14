@@ -67,10 +67,17 @@ public class Main extends javax.swing.JFrame {
     }
 
     private void addElfo() {
-        Elfo e = new Elfo();
-        e.start();
-        modelListaElfos.addElement(e);
-        updateLabelsSize();
+        try {
+            mutex.acquire();
+            Elfo e = new Elfo(modelListaElfos.size());
+            e.start();
+            modelListaElfos.addElement(e);
+            updateLabelsSize();
+            mutex.release();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**
