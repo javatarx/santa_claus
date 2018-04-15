@@ -5,6 +5,8 @@
  */
 package santaclaus;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +32,7 @@ public class Main extends javax.swing.JFrame {
     public static Semaphore semRenos = new Semaphore(0, true);
     public static Semaphore semSanta = new Semaphore(1, true);
     public static Semaphore mutex = new Semaphore(1);
-
+    
     /**
      * Creates new form Main
      */

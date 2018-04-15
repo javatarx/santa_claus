@@ -28,10 +28,10 @@ public class Elfo extends Thread {
                 if (Main.modelListaElfos.size() / Main.CANT_ELFOS_ATENCION >= 1) {
                     Main.semSanta.acquire();
                     SantaClaus.despertar();
+                    Main.semElfos.acquire();
+                    solicitarAyuda();
                 }
 
-                Main.semElfos.acquire();
-                solicitarAyuda();
             }
         } catch (Exception e) {
         }
