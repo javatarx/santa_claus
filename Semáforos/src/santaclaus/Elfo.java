@@ -24,19 +24,23 @@ public class Elfo extends Thread {
     public void run() {
         System.out.println(toString() + " solicita ayuda.");
         try {
-            while (true) {
-                if (Main.modelListaElfos.size() / Main.CANT_ELFOS_ATENCION >= 1) {
-                    Main.semSanta.acquire();
-                    SantaClaus.despertar();
-                    Main.semElfos.acquire();
-                    solicitarAyuda();
-                }
-
+            if (Main.modelListaSalaEspera.size() == Main.CANT_ELFOS_ATENCION) {
+                ingresarSalaEspera();
+                Main.semSanta.release(1);
+            }else{
+                Main.semElfos.acquire();
+                ingresarSalaEspera();
             }
+            
         } catch (Exception e) {
         }
     }
 
+    
+    public void ingresarSalaEspera(){
+        System.out.println("El "+toString()+" ingreso a la sala de espera");
+    }
+    
     public void solicitarAyuda() {
         try {
             System.out.println("Santa ayuda al " + toString());

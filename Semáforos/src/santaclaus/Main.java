@@ -5,8 +5,6 @@
  */
 package santaclaus;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,16 +21,19 @@ public class Main extends javax.swing.JFrame {
 
     public static DefaultListModel modelListaRenos;
     public static DefaultListModel modelListaElfos;
+    public static DefaultListModel modelListaSalaEspera;
 
     /**
      * Inicializamos los semaforos de elfos y renos en 0, para que al iniciar
      * esten a la espera. El que cambia este valor es Santa
      */
-    public static Semaphore semElfos = new Semaphore(0, true);
+    public static Semaphore semElfos = new Semaphore(3, true);
     public static Semaphore semRenos = new Semaphore(0, true);
-    public static Semaphore semSanta = new Semaphore(1, true);
+    public static Semaphore semSanta = new Semaphore(0, true);
     public static Semaphore mutex = new Semaphore(1);
-    
+
+    public int contador = 0;
+
     /**
      * Creates new form Main
      */
@@ -46,12 +47,17 @@ public class Main extends javax.swing.JFrame {
 
         modelListaElfos = new DefaultListModel();
         modelListaRenos = new DefaultListModel();
+        modelListaSalaEspera = new DefaultListModel();
 
         listaElfos.setModel(modelListaElfos);
         listaRenos.setModel(modelListaRenos);
+        listaSalaEspera.setModel(modelListaSalaEspera);
 
         updateLabelElfos();
         updateLabelRenos();
+
+        SantaClaus s = new SantaClaus();
+        s.start();
 
     }
 
@@ -61,6 +67,14 @@ public class Main extends javax.swing.JFrame {
 
     public static void updateLabelRenos() {
         txtRenosStatic.setText(modelListaRenos.size() + " Renos");
+    }
+    
+    public static void despertarSanta(){
+        imagenSanta.setIcon(new javax.swing.ImageIcon(Main.class.getResource("/santaclaus/santa_despierto.png")));
+    }
+    
+    public static void dormirSanta(){
+        imagenSanta.setIcon(new javax.swing.ImageIcon(Main.class.getResource("/santaclaus/santa_durmiendo.png")));
     }
 
     private void addReno() {
@@ -79,10 +93,17 @@ public class Main extends javax.swing.JFrame {
     private void addElfo() {
         try {
             mutex.acquire();
-            Elfo e = new Elfo(modelListaElfos.size());
+            Elfo e = new Elfo(contador++);
+
+            if (modelListaSalaEspera.size() < CANT_ELFOS_ATENCION) {
+                modelListaSalaEspera.addElement(e);
+            } else {
+                modelListaElfos.addElement(e);
+                updateLabelElfos();
+            }
+
             e.start();
-            modelListaElfos.addElement(e);
-            updateLabelElfos();
+
             mutex.release();
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -110,6 +131,10 @@ public class Main extends javax.swing.JFrame {
         txtElfos = new javax.swing.JLabel();
         txtElfosStatic = new javax.swing.JLabel();
         txtRenosStatic = new javax.swing.JLabel();
+        imagenSanta = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        listaSalaEspera = new javax.swing.JList<>();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -142,6 +167,12 @@ public class Main extends javax.swing.JFrame {
 
         txtRenosStatic.setText("jLabel1");
 
+        imagenSanta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/santaclaus/santa_durmiendo.png"))); // NOI18N
+
+        jScrollPane3.setViewportView(listaSalaEspera);
+
+        jLabel1.setText("SalaDeEspera");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -150,23 +181,33 @@ public class Main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 230, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtElfosStatic)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addComponent(btnElfo, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(59, 59, 59)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(84, 84, 84)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnReiniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel1)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(imagenSanta, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtRenosStatic, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btnReno, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnElfo, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(127, 127, 127)
-                        .addComponent(btnReiniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
-                        .addComponent(btnReno, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(txtElfos)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtRenos))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtElfosStatic)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtRenosStatic)))
+                        .addComponent(txtRenos)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -175,24 +216,33 @@ public class Main extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(52, 52, 52)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(22, 22, 22)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtElfosStatic)
+                            .addComponent(txtRenosStatic))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnReno))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnElfo)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtRenos)
                     .addComponent(txtElfos))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtElfosStatic)
-                    .addComponent(txtRenosStatic))
-                .addGap(11, 11, 11)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnElfo)
-                    .addComponent(btnReno)
-                    .addComponent(btnReiniciar))
-                .addGap(45, 45, 45))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(52, 52, 52)
+                .addComponent(imagenSanta, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addComponent(btnReiniciar)
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         pack();
@@ -249,10 +299,14 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JButton btnElfo;
     private javax.swing.JButton btnReiniciar;
     private javax.swing.JButton btnReno;
+    public static javax.swing.JLabel imagenSanta;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JList<String> listaElfos;
     private javax.swing.JList<String> listaRenos;
+    private javax.swing.JList<String> listaSalaEspera;
     private javax.swing.JLabel txtElfos;
     private static javax.swing.JLabel txtElfosStatic;
     private javax.swing.JLabel txtRenos;
